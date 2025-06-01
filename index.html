@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Functional Skills Maths: Reading/Writing Large Numbers</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 15px;
+    background-color: #f0f4f8;
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  .question {
+    font-size: 24px;
+    margin: 30px 0 20px 0;
+    text-align: center;
+  }
+  input[type="text"] {
+    width: 100%;
+    font-size: 18px;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 15px;
+    padding: 10px;
+    width: 100%;
+    font-size: 18px;
+    background-color: #007acc;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  button:hover {
+    background-color: #005fa3;
+  }
+  .feedback {
+    margin-top: 15px;
+    font-weight: bold;
+    text-align: center;
+  }
+  .scoreboard {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 20px;
+    color: #555;
+  }
+  .correct {
+    color: green;
+  }
+  .incorrect {
+    color: red;
+  }
+</style>
+</head>
+<body>
+
+<h1>Functional Skills Maths: Reading/Writing Large Numbers</h1>
+
+<div class="question" id="numberDisplay"></div>
+
+<input type="text" id="answerInput" placeholder="Type the number in words here" autocomplete="off" />
+
+<button id="submitBtn">Submit Answer</button>
+
+<div class="feedback" id="feedback"></div>
+
+<div class="scoreboard" id="scoreboard">
+  Score: <span id="score">0</span> / <span id="questionsCount">0</span>
+</div>
+
+<script>
+// Score and question count
+let score = 0;
+let questionsCount = 0;
+
+// Current number and its word form
+let currentNumber = 0;
+let currentAnswer = "";
+
+// Elements
+const numberDisplay = document.getElementById('numberDisplay');
+const answerInput = document.getElementById('answerInput');
+const submitBtn = document.getElementById('submitBtn');
+const feedback = document.getElementById('feedback');
+const scoreDisplay = document.getElementById('score');
+const questionsCountDisplay = document.getElementById('questionsCount');
+
+// Generate a random number (from 1000 up to 9999999)
+function generateRandomNumber() {
+  return Math.floor(Math.random() * 9999000) + 1000;
+}
+
+// Convert number to words (up to millions)
+function numberToWords(num) {
+  if (num === 0) return "zero";
+
+  const belowTwenty = ["","one","two","three","four","five","six","seven","eight","nine","ten",
+    "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+
+  const tens = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+
+  const thousands = ["","thousand","million"];
+
+  function helper(n) {
+    let word = "";
+    if (n < 20) {
+      word = belowTwenty[n];
+    } else if (n < 100) {
+      word = tens[Math.floor(n/10)] + (n%10 > 0 ? " " + belowTwenty[n%10] : "");
+    } else {
+      word = belowTwenty[Math.floor(n/100)] + " hundred" + (n%100 > 0 ? " " + helper(n%100) : "");
+    }
+    return word;
+  }
+
+  let word = "";
+  let i = 0;
+
+  while(num > 0) {
+    let chunk = num % 1000;
+    if(chunk > 0){
+      word = helper(chunk) + (thousands[i] ? " " + thousands[i] : "") + (word ? " " + word : "");
+    }
+    num = Math.floor(num / 1000);
+    i++;
+  }
+  return word.trim();
+}
+
+// Normalize strings for comparison (remove extra spaces, hyphens, lowercase)
+function normalizeString(str) {
+  return str.toLowerCase().replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Load new question
+function loadQuestion() {
+  currentNumber = generateRandomNumber();
+  currentAnswer = numberToWords(currentNumber);
+  numberDisplay.textContent = currentNumber.toLocaleString();
+  answerInput.value = "";
+  answerInput.focus();
+  feedback.textContent = "";
+}
+
+// Check user's answer
+function checkAnswer() {
+  let userAnswer = normalizeString(answerInput.value);
+  let correctAnswer = normalizeString(currentAnswer);
+
+  questionsCount++;
+  questionsCountDisplay.textContent = questionsCount;
+
+  if(userAnswer === correctAnswer) {
+    score++;
+    scoreDisplay.textContent = score;
+    feedback.textContent = "Correct! 🎉";
+    feedback.className = "feedback correct";
+  } else {
+    feedback.textContent = `Incorrect. The correct answer is: "${currentAnswer}"`;
+    feedback.className = "feedback incorrect";
+  }
+
+  // Load next question after short delay
+  setTimeout(() => {
+    loadQuestion();
+  }, 2500);
+}
+
+// Initialize game
+loadQuestion();
+
+// Event listener for submit button
+submitBtn.addEventListener("click", () => {
+  if(answerInput.value.trim() === "") {
+    feedback.textContent = "Please enter your answer.";
+    feedback.className = "feedback incorrect";
+    return;
+  }
+  checkAnswer();
+});
+
+// Allow Enter key to submit answer
+answerInput.addEventListener("keypress", (e) => {
+  if(e.key === "Enter") {
+    e.preventDefault();
+    submitBtn.click();
+  }
+});
+</script>
+
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
